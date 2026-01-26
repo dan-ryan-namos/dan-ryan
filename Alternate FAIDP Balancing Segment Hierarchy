@@ -1,0 +1,305 @@
+Please see blog at https://blogs.oracle.com/analytics/create-a-custom-alternate-presentation-hierarchy-in-oracle-fusion-data-intelligence for how to create the presentation hierarchy
+
+CREATE OR REPLACE VIEW x_custom_dw_balancing_segment_dh (
+custom_balancing_segment_hierarchy_valueset_code,
+custom_balancing_segment_tree_filter,
+custom_balancing_segment_tree_code_version,
+custom_balancing_segment_hierarchy_version_name,
+custom_balancing_segment_hierarchy_name,
+custom_balancing_segment_valueset_code,
+custom_balancing_segment_tree_version_effective_start_date,
+custom_balancing_segment_tree_version_effective_end_date,
+custom_balancing_segment_tree_version_status,
+custom_balancing_segment_base_level_code,
+custom_balancing_segment_base_level_description,
+custom_balancing_segment_base_level_name,
+custom_balancing_segment_base_level_valueset_code,
+custom_balancing_segment_level_21_code,
+custom_balancing_segment_level_21_description,
+custom_balancing_segment_level_21_name,
+custom_balancing_segment_level_21_valueset_code,
+custom_balancing_segment_level_22_code,
+custom_balancing_segment_level_22_description,
+custom_balancing_segment_level_22_name,
+custom_balancing_segment_level_22_valueset_code,
+custom_balancing_segment_level_23_code,
+custom_balancing_segment_level_23_description,
+custom_balancing_segment_level_23_name,
+custom_balancing_segment_level_23_valueset_code,
+custom_balancing_segment_level_24_code,
+custom_balancing_segment_level_24_description,
+custom_balancing_segment_level_24_name,
+custom_balancing_segment_level_24_valueset_code,
+custom_balancing_segment_level_25_code,
+custom_balancing_segment_level_25_description,
+custom_balancing_segment_level_25_name,
+custom_balancing_segment_level_25_valueset_code,
+custom_balancing_segment_level_26_code,
+custom_balancing_segment_level_26_description,
+custom_balancing_segment_level_26_name,
+custom_balancing_segment_level_26_valueset_code,
+custom_balancing_segment_level_27_code,
+custom_balancing_segment_level_27_description,
+custom_balancing_segment_level_27_name,
+custom_balancing_segment_level_27_valueset_code,
+custom_balancing_segment_level_28_code,
+custom_balancing_segment_level_28_description,
+custom_balancing_segment_level_28_name,
+custom_balancing_segment_level_28_valueset_code,
+custom_balancing_segment_level_29_code,
+custom_balancing_segment_level_29_description,
+custom_balancing_segment_level_29_name,
+custom_balancing_segment_level_29_valueset_code,
+custom_balancing_segment_level_30_code,
+custom_balancing_segment_level_30_description,
+custom_balancing_segment_level_30_name,
+custom_balancing_segment_level_30_valueset_code,
+custom_balancing_segment_level_31_code,
+custom_balancing_segment_level_31_description,
+custom_balancing_segment_level_31_name,
+custom_balancing_segment_level_31_valueset_code
+) AS
+WITH balancingsegmenthierarchy AS (
+SELECT DISTINCT
+dcch.hierarchy_valueset_code AS hierarchy_valueset_code,
+dcch.hierarchy_tree_code
+|| '~'
+|| dcch.hierarchy_version_id AS hierarchy_tree_code_version,
+dcch.hierarchy_tree_code,
+dcch.hierarchy_name_hierarchy_version_name AS
+hierarchy_name_hierarchy_version_name,
+dcch.hierarchy_version_name AS hierarchy_version_name,
+CASE
+WHEN dcch.tree_code_ver_eff_end_date IN ( TO_DATE('01/01/1901', 'MM/DD/YYYY'),
+TO_DATE('12/31/4712', 'MM/DD/YYYY') ) THEN
+NULL
+ELSE
+dcch.tree_code_ver_eff_end_date
+END AS tree_version_end_date,
+dcch.tree_code_ver_eff_start_date AS tree_version_start_date,
+dcch.hierarchy_version_status AS hierarchy_status,
+dcc.GL_BLNC_SGMNT_VALUESET_CODE AS balancing_segment_valueset_code,
+dcch.hierarchy_version_id,
+dcch.source_record_id,
+dcch.hierarchy_name,
+dcc.GL_BALANCING_SEGMENT AS balancing_segment,
+dcch.level0_segment AS level_0_segment_value,
+dcch.level0_segment,
+dcch.level0_segment_id AS level0_segment_id,
+dcch.level0_valueset_code,
+dcch.level21_segment AS level_21_segment,
+dcch.level21_segment_id AS level21_segment_id,
+dcch.level21_valueset_code,
+dcch.level22_segment AS level_22_segment,
+dcch.level22_segment_id AS level22_segment_id,
+dcch.level22_valueset_code,
+dcch.level23_segment AS level_23_segment,
+dcch.level23_segment_id AS level23_segment_id,
+dcch.level23_valueset_code,
+dcch.level24_segment AS level_24_segment,
+dcch.level24_segment_id AS level24_segment_id,
+dcch.level24_valueset_code,
+dcch.level25_segment AS level_25_segment,
+dcch.level25_segment_id AS level25_segment_id,
+dcch.level25_valueset_code,
+dcch.level26_segment AS level_26_segment,
+dcch.level26_segment_id AS level26_segment_id,
+dcch.level26_valueset_code,
+dcch.level27_segment AS level_27_segment,
+dcch.level27_segment_id AS level27_segment_id,
+dcch.level27_valueset_code,
+dcch.level28_segment AS level_28_segment,
+dcch.level28_segment_id AS level28_segment_id,
+dcch.level28_valueset_code,
+dcch.level29_segment AS level_29_segment,
+dcch.level29_segment_id AS level29_segment_id,
+dcch.level29_valueset_code,
+dcch.level30_segment AS level_30_segment,
+dcch.level30_segment_id AS level30_segment_id,
+dcch.level30_valueset_code,
+dcch.level31_segment AS level_31_segment,
+dcch.level31_segment_id AS level31_segment_id,
+dcch.level31_valueset_code
+FROM
+oax$oac.dw_balancing_segment_d dcc
+LEFT OUTER JOIN oax$oac.dw_balancing_segment_dh dcch ON dcc.GL_BALANCING_SEGMENT =
+dcch.GL_BALANCING_SEGMENT
+AND dcc.GL_BLNC_SGMNT_VALUESET_CODE =
+dcch.hierarchy_valueset_code
+), balancingsegmentdescription AS (
+SELECT /*+ no_merge */
+dcct.GL_BLNC_SGMNT_DESCRIPTION AS balancing_segment_description,
+dcct.GL_BALANCING_SEGMENT AS balancing_segment,
+dcct.GL_BLNC_SGMNT_VALUESET_CODE AS balancing_segment_valueset_code,
+dcct.GL_BLNC_SGMNT_NAME AS balancing_segment_name
+FROM
+oax$oac.dw_balancing_segment_d_tl dcct
+WHERE
+dcct.language = 'US'
+), treeversionstatusdescription AS (
+SELECT /*+ no_merge */
+tvstl.name AS tree_version_status_name,
+tvstl.tree_version_status_lkp_code AS tree_version_status_code
+FROM
+oax$oac.dw_tree_version_status_lkp_tl tvstl
+WHERE
+tvstl.language = 'US'
+)
+SELECT
+ch.hierarchy_valueset_code,
+ch.hierarchy_name_hierarchy_version_name,
+ch.hierarchy_tree_code_version,
+ch.hierarchy_version_name,
+ch.hierarchy_name,
+ch.balancing_segment_valueset_code,
+ch.tree_version_start_date,
+ch.tree_version_end_date,
+ch.hierarchy_status,
+ch.level0_segment,
+ch.balancing_segment
+|| ' - '
+|| nvl(ccd11.balancing_segment_description, ch.balancing_segment) AS balancing_segment_description,
+ch.level0_segment_id,
+ch.level0_valueset_code,
+ch.level_21_segment,
+ch.level_21_segment
+|| ' - '
+|| nvl(ccd10.balancing_segment_description, ch.level_21_segment) AS balancing_segment_level_21_description,
+ch.level21_segment_id,
+ch.level21_valueset_code,
+ch.level_22_segment,
+ch.level_22_segment
+|| ' - '
+|| nvl(ccd9.balancing_segment_description, ch.level_22_segment) AS balancing_segment_level_22_description,
+ch.level22_segment_id,
+ch.level22_valueset_code,
+ch.level_23_segment,
+ch.level_23_segment
+|| ' - '
+|| nvl(ccd8.balancing_segment_description, ch.level_23_segment) AS balancing_segment_level_23_description,
+ch.level23_segment_id,
+ch.level23_valueset_code,
+ch.level_24_segment,
+ch.level_24_segment
+|| ' - '
+|| nvl(ccd7.balancing_segment_description, ch.level_24_segment) AS balancing_segment_level_24_description,
+ch.level24_segment_id,
+ch.level24_valueset_code,
+ch.level_25_segment,
+ch.level_25_segment
+|| ' - '
+|| nvl(ccd6.balancing_segment_description, ch.level_25_segment) AS balancing_segment_level_25_description,
+ch.level25_segment_id,
+ch.level25_valueset_code,
+ch.level_26_segment,
+ch.level_26_segment
+|| ' - '
+|| nvl(ccd5.balancing_segment_description, ch.level_26_segment) AS balancing_segment_level_26_description,
+ch.level26_segment_id,
+ch.level26_valueset_code,
+ch.level_27_segment,
+ch.level_27_segment
+|| ' - '
+|| nvl(ccd4.balancing_segment_description, ch.level_27_segment) AS balancing_segment_level_27_description,
+ch.level27_segment_id,
+ch.level27_valueset_code,
+ch.level_28_segment,
+ch.level_28_segment
+|| ' - '
+|| nvl(ccd3.balancing_segment_description, ch.level_28_segment) AS balancing_segment_level_28_description,
+ch.level28_segment_id,
+ch.level28_valueset_code,
+ch.level_29_segment,
+ch.level_29_segment
+|| ' - '
+|| nvl(ccd2.balancing_segment_description, ch.level_29_segment) AS balancing_segment_level_29_description,
+ch.level29_segment_id,
+ch.level29_valueset_code,
+ch.level_30_segment,
+ch.level_30_segment
+|| ' - '
+|| nvl(ccd1.balancing_segment_description, ch.level_30_segment) AS balancing_segment_level_30_description,
+ch.level30_segment_id,
+ch.level30_valueset_code,
+ch.level_31_segment,
+ch.level_31_segment
+|| ' - '
+|| nvl(ccd0.balancing_segment_description, ch.level_31_segment) AS balancing_segment_level_31_description,
+ch.level31_segment_id,
+ch.level31_valueset_code
+FROM
+balancingsegmenthierarchy ch
+
+LEFT OUTER JOIN balancingsegmentdescription ccd0 ON ch.level_31_segment =
+ccd0.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd0.balancing_segment_valueset_code
+LEFT OUTER JOIN balancingsegmentdescription ccd1 ON ch.level_30_segment =
+ccd1.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd1.balancing_segment_valueset_code
+--AND ccd1.balancing_segment <> ccd0.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd2 ON ch.level_29_segment =
+ccd2.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd2.balancing_segment_valueset_code
+--AND ccd2.balancing_segment <> ccd1.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd3 ON ch.level_28_segment =
+ccd3.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd3.balancing_segment_valueset_code
+--AND ccd3.balancing_segment <> ccd2.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd4 ON ch.level_27_segment =
+ccd4.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd4.balancing_segment_valueset_code
+--AND ccd4.balancing_segment <> ccd3.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd5 ON ch.level_26_segment =
+ccd5.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd5.balancing_segment_valueset_code
+--AND ccd5.balancing_segment <> ccd4.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd6 ON ch.level_25_segment =
+ccd6.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd6.balancing_segment_valueset_code
+--AND ccd6.balancing_segment <> ccd5.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd7 ON ch.level_24_segment =
+ccd7.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd7.balancing_segment_valueset_code
+--AND ccd7.balancing_segment <> ccd6.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd8 ON ch.level_23_segment =
+ccd8.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd8.balancing_segment_valueset_code
+--AND ccd8.balancing_segment <> ccd7.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd9 ON ch.level_22_segment =
+ccd9.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd9.balancing_segment_valueset_code
+--AND ccd9.balancing_segment <> ccd8.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd10 ON ch.level_21_segment =
+ccd10.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd10.balancing_segment_valueset_code
+--AND ccd10.balancing_segment <> ccd9.balancing_segment
+LEFT OUTER JOIN balancingsegmentdescription ccd11 ON ch.balancing_segment =
+ccd11.balancing_segment
+AND ch.balancing_segment_valueset_code =
+ccd11.balancing_segment_valueset_code
+--AND ccd11.balancing_segment <> ccd10.balancing_segment
+
+
+LEFT OUTER JOIN treeversionstatusdescription tvs ON ch.hierarchy_status =
+tvs.tree_version_status_code
+
+
+;
+
+
+GRANT SELECT ON x_custom_dw_balancing_segment_dh TO oax$oac;
+SELECT
+*
+FROM
+x_custom_dw_balancing_segment_dh;
